@@ -9,11 +9,19 @@ export default async function Home() {
   });
   const data = await response.json();
   const originalRates = data.rates || {};
+
   const adjustedRates = Object.fromEntries(
-    Object.entries(originalRates).map(([currency, rate]) => [
-      currency,
-      Number(rate) + 10.0002,
-    ])
+    Object.entries(originalRates).map(([currency, rate]) => {
+
+      // Make sure there is no JS decimal point floating problem after adding 10.0002 to the number 
+      // by dynamically applying toFixed with the same decimal places as the original rate
+      const rateStr = (rate as number).toString();
+      const decimalPart = rateStr.includes('.') ? rateStr.split('.')[1] : '';
+      const decimalPlaces = decimalPart.length || 4;
+
+      const adjustedValue = Number(rate) + 10.0002;
+      return [currency, Number(adjustedValue.toFixed(decimalPlaces))];
+    })
   );
 
   // const adjustedRates: { [key: string]: number } = {};
